@@ -154,5 +154,5 @@ def get_student_binary_prediction(df, col):
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
     # Trial and error based on (1) the output of prob_output_df.describe() above and (2) observed performance below
-    student_binary_prediction = df[col].apply(lambda x:1 if x>=30 else 0)
+    student_binary_prediction = df[col].apply(lambda x:1 if x>=32 else 0)
     return student_binary_prediction
