@@ -20194,6 +20194,16 @@ Epoch 10/10
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AUC, F1, precision and recall</span>
 <span class="c1"># Summary</span>
+<span class="c1"># The model displays a precision of 0.63, recall of 0.65 and an f1-score of 0.64.</span>
+<span class="c1"># In order to get the model working at this level, I used a classification threshold of 30 days</span>
+<span class="c1"># on the pred values returned by the model. I also tried different combinations of numerical and</span>
+<span class="c1"># categorical variables and arrived at a combination that seemingly works best.</span>
+<span class="c1"># For future/further improvements, need to further cleanse the data. I have dropped several columns that had </span>
+<span class="c1"># large number of null/invalid values, but there are other columns (e.g., &#39;gender&#39;), that has a small number</span>
+<span class="c1"># of invalid values which I have kept as-is. Also, different loss functions can be tried, more hidden layers </span>
+<span class="c1"># can be added to the DNN, and the categorical features can be further permutated. Also, more numerical </span>
+<span class="c1"># features can be added and embedding columns can replace indicator columns.</span>
+
 <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">roc_auc_score</span>
 
 <span class="n">y_true</span> <span class="o">=</span> <span class="n">pred_test_df</span><span class="p">[</span><span class="s1">&#39;label_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> 
@@ -20414,6 +20424,10 @@ See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stab
 <span class="n">p</span> <span class="o">=</span> <span class="n">aqp</span><span class="o">.</span><span class="n">plot_group_metric_all</span><span class="p">(</span><span class="n">xtab</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;tpr&#39;</span><span class="p">,</span> <span class="s1">&#39;fpr&#39;</span><span class="p">],</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="c1"># Is there significant bias in your model for either race or gender?</span>
+<span class="c1"># Ans: There is no significant bias at a gender level as revealed by the TPR and FPR plots</span>
+<span class="c1"># At the race level, there seem to be a minor bias against African Americans, say, against Asians. For example,</span>
+<span class="c1"># the TPR for African Americans is 7% points less than Asians, while the FPR is 4% points more than Asians. </span>
+<span class="c1"># The training data needs to be verified whether it has enough representation for African Americans.</span>
 </pre></div>
 
     </div>
