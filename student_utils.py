@@ -39,7 +39,7 @@ def select_first_encounter (reduce_dim_df):
 
 #Question 6
 #def patient_dataset_splitter(df, patient_key='patient_nbr'):
-
+"""
 def patient_dataset_splitter (df, colname):
     '''
     df: pandas dataframe, input dataset that will be split
@@ -53,9 +53,28 @@ def patient_dataset_splitter (df, colname):
     train_dataset     = df.sample(frac=0.6,random_state=0)
     remaining_dataset = df.drop(train_dataset.index)
     valid_dataset     = remaining_dataset.sample(frac=0.5, random_state=0)
-    test_dataset      = remaining_dataset.drop(valid_dataset.index)    
+    test_dataset      = remaining_dataset.drop(valid_dataset.index)   
+    train_dataset.reset_index(drop=True)
+    valid_dataset.reset_index(drop=True)
+    test_dataset.reset_index(drop=True)
+    
     return train_dataset, valid_dataset, test_dataset
+"""
+
+def patient_dataset_splitter(df, patient_key='patient_nbr'):
+    df = df.iloc[np.random.permutation(len(df))]
+    unique_values = df[patient_key].unique()
+    total_values = len(unique_values)
+    
+    train_size = round(total_values * (0.6))
+    vt_size = round(total_values * (0.2)) + train_size
+    
+    train = df[df[patient_key].isin(unique_values[:train_size])].reset_index(drop=True)
+    validation = df[df[patient_key].isin(unique_values[train_size:vt_size])].reset_index(drop=True)
+    test = df[df[patient_key].isin(unique_values[vt_size:])].reset_index(drop=True)
+    
     return train, validation, test
+
 
 #Question 7
 def create_tf_categorical_feature_cols(categorical_col_list,
@@ -86,9 +105,11 @@ def create_tf_categorical_feature_cols(categorical_col_list,
 
         '''
         feature_column = tf.feature_column.categorical_column_with_vocabulary_file(key=c, 
-                                                                          vocabulary_file = vocab_file_path)
+                                                                              vocabulary_file = vocab_file_path,
+                                                                              num_oov_buckets=1)
         print (c, vocab_file_path)
         tf_categorical_feature_column = tf.feature_column.indicator_column(feature_column)
+        #tf_categorical_feature_column = tf.feature_column.embedding_column(feature_column, dimension=10)
         output_tf_list.append(tf_categorical_feature_column)
     return output_tf_list
 
@@ -133,5 +154,5 @@ def get_student_binary_prediction(df, col):
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
     # Trial and error based on (1) the output of prob_output_df.describe() above and (2) observed performance below
-    student_binary_prediction = df[col].apply(lambda x:1 if x>=6 else 0)
+    student_binary_prediction = df[col].apply(lambda x:1 if x>=30 else 0)
     return student_binary_prediction
