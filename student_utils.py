@@ -132,7 +132,7 @@ def create_tf_numeric_feature (colname, mean_val, stdev_val, default_value=0):
         tf_numeric_feature: tf feature column representation of the input field
     '''
     normalizer = functools.partial(normalize_numeric_with_zscore, mean=mean_val, std=stdev_val)
-    tf_numeric_feature = tf.feature_column.numeric_column(key=colname, default_value = 0, 
+    tf_numeric_feature = tf.feature_column.numeric_column(key=colname, default_value = default_value, 
                                             normalizer_fn=normalizer, dtype=tf.float64)
     return tf_numeric_feature    
 
@@ -154,5 +154,5 @@ def get_student_binary_prediction(df, col):
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
     # Trial and error based on (1) the output of prob_output_df.describe() above and (2) observed performance below
-    student_binary_prediction = df[col].apply(lambda x:1 if x>=32 else 0)
+    student_binary_prediction = df[col].apply(lambda x:1 if x>=40 else 0)
     return student_binary_prediction
