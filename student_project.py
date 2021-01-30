@@ -63,7 +63,7 @@
 
 # # 3. Data Preparation
 
-# In[99]:
+# In[110]:
 
 
 # from __future__ import absolute_import, division, print_function, unicode_literals
@@ -85,7 +85,7 @@ get_ipython().run_line_magic('load_ext', 'autoreload')
 get_ipython().run_line_magic('autoreload', '')
 
 
-# In[100]:
+# In[111]:
 
 
 #OPEN ISSUE ON MAC OSX for TF model training
@@ -97,14 +97,14 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 # Load the dataset and view a sample of the dataset along with reviewing the schema reference files to gain a deeper understanding of the dataset. The dataset is located at the following path https://github.com/udacity/nd320-c1-emr-data-starter/blob/master/project/starter_code/data/final_project_dataset.csv. Also, review the information found in the data schema https://github.com/udacity/nd320-c1-emr-data-starter/blob/master/project/data_schema_references/
 
-# In[101]:
+# In[112]:
 
 
 dataset_path = "./data/final_project_dataset.csv"
 df = pd.read_csv(dataset_path)
 
 
-# In[102]:
+# In[113]:
 
 
 df.head(100)
@@ -116,7 +116,7 @@ df.head(100)
 
 # Student Response:??
 
-# In[103]:
+# In[114]:
 
 
 # Ans: The data set is at the line level. The number of lines in the data frame (143424) is greater than the number of 
@@ -125,19 +125,19 @@ df.head(100)
 # since that is a potential correlation that might be simpler to capture while also being effective.
 
 
-# In[104]:
+# In[115]:
 
 
 len(df)
 
 
-# In[105]:
+# In[116]:
 
 
 len(df['encounter_id'].unique())
 
 
-# In[106]:
+# In[117]:
 
 
 len(df['patient_nbr'].unique())
@@ -159,7 +159,7 @@ len(df['patient_nbr'].unique())
 
 # **Student Response**: ??
 
-# In[107]:
+# In[118]:
 
 
 pd.DataFrame({'columns': df.columns, 
@@ -170,13 +170,13 @@ pd.DataFrame({'columns': df.columns,
             } )
 
 
-# In[108]:
+# In[119]:
 
 
 np.isnan(df['time_in_hospital']).sum()
 
 
-# In[109]:
+# In[120]:
 
 
 # The high '0' values for number_outpatient, number_inpatient and number_emergency is understandable since 
@@ -188,7 +188,7 @@ np.isnan(df['time_in_hospital']).sum()
 # There are 5 entries in the 'gender' field that has 'Unknown/Invalid', so let us remove those rows
 
 
-# In[110]:
+# In[121]:
 
 
 df.pop('weight')
@@ -202,25 +202,25 @@ df.drop(invalid_indices, inplace=True)
 df['gender'].unique()
 
 
-# In[111]:
+# In[122]:
 
 
 df['change'].unique()
 
 
-# In[112]:
+# In[123]:
 
 
 len(df)
 
 
-# In[113]:
+# In[124]:
 
 
 df.head()
 
 
-# In[114]:
+# In[125]:
 
 
 # This is only a first cut to plot histograms and to analyze the data. The final numeric and categorical features
@@ -233,20 +233,46 @@ categorical_feature_list = ['race', 'gender', 'age','admission_type_id', 'discha
                             'change', 'readmitted']
 
 
-# In[115]:
+# In[126]:
 
 
 df[numeric_feature_list].describe()
 
 
-# In[116]:
+# In[127]:
+
+
+df['age'].describe()
+
+
+# In[128]:
+
+
+df['gender'].describe()
+
+
+# In[129]:
+
+
+# Gender and Age Analysis
+# From the outputs of the previous 2 cells and the age and gender histograms below, we can see that
+# females (53%) slightly outnumber males (47%) in the training population. Also, the 70-80 age bracket
+# has maximum representation at 26%. 
+#
+# Also, the seaborn SNS plots below reveal an interesting aspect about age distributions. Even though, females outnumber
+# males in the overall population (53% against 47%), in the population under the age of 70, it is males that outnumber
+# females. There are much more female senior citizen females than males. This has to be kept in mind while 
+# doing bias analysis.
+
+
+# In[130]:
 
 
 # 'number_diagnosis' is manifesting a high standard deviation of ~20, so perhaps we should eliminate that field 
 # from the model. But keeping it for now.
 
 
-# In[117]:
+# In[131]:
 
 
 # Plot histograms of numeric features
@@ -257,14 +283,14 @@ for i in numeric_feature_list:
     plt.show()
 
 
-# In[118]:
+# In[132]:
 
 
 # From the above histograms, the 'num_lab_procedures' and 'num_medication' fields exhibit a normal-like distribution
 # From the SNS plots (a few cells down below), "age" is also normally distributed
 
 
-# In[119]:
+# In[133]:
 
 
 # Show cardinality of the categorical features 
@@ -273,25 +299,25 @@ pd.DataFrame({'columns': df[categorical_feature_list].columns,
 # Diagnosis codes have high cardinality as can be seen from the output below.
 
 
-# In[120]:
+# In[134]:
 
 
 df['gender'].unique()
 
 
-# In[121]:
+# In[135]:
 
 
 len(df[df['gender']=='Unknown/Invalid']['gender'])
 
 
-# In[122]:
+# In[136]:
 
 
 len(df['gender'])
 
 
-# In[123]:
+# In[137]:
 
 
 import seaborn as sns
@@ -302,13 +328,13 @@ df["age"]
 sns.countplot(x="age", data=df)
 
 
-# In[124]:
+# In[138]:
 
 
 sns.countplot(x="age", hue="gender", data=df)
 
 
-# In[125]:
+# In[139]:
 
 
 ######NOTE: The visualization will only display in Chrome browser. ########
@@ -320,7 +346,7 @@ sns.countplot(x="age", hue="gender", data=df)
 
 # **Question 3**: NDC codes are a common format to represent the wide variety of drugs that are prescribed for patient care in the United States. The challenge is that there are many codes that map to the same or similar drug. You are provided with the ndc drug lookup file https://github.com/udacity/nd320-c1-emr-data-starter/blob/master/project/data_schema_references/ndc_lookup_table.csv derived from the National Drug Codes List site(https://ndclist.com/). Please use this file to come up with a way to reduce the dimensionality of this field and create a new field in the dataset called "generic_drug_name" in the output dataframe. 
 
-# In[126]:
+# In[140]:
 
 
 #NDC code lookup file
@@ -328,13 +354,13 @@ ndc_code_path = "./medication_lookup_tables/final_ndc_lookup_table"
 ndc_code_df = pd.read_csv(ndc_code_path)
 
 
-# In[127]:
+# In[141]:
 
 
 ndc_code_df
 
 
-# In[128]:
+# In[142]:
 
 
 from student_utils import reduce_dimension_ndc
@@ -342,31 +368,31 @@ from student_utils import reduce_dimension_ndc
 reduce_dim_df = reduce_dimension_ndc(df, ndc_code_df)
 
 
-# In[129]:
+# In[143]:
 
 
 reduce_dim_df.shape
 
 
-# In[130]:
+# In[144]:
 
 
 df.shape
 
 
-# In[131]:
+# In[145]:
 
 
 df.nunique()
 
 
-# In[132]:
+# In[146]:
 
 
 reduce_dim_df.nunique()
 
 
-# In[133]:
+# In[147]:
 
 
 # Number of unique values should be less for the new output field
@@ -377,7 +403,7 @@ assert df['ndc_code'].nunique() > reduce_dim_df['generic_drug_name'].nunique()
 
 # **Question 4**: In order to simplify the aggregation of data for the model, we will only select the first encounter for each patient in the dataset. This is to reduce the risk of data leakage of future patient encounters and to reduce complexity of the data transformation and modeling steps. We will assume that sorting in numerical order on the encounter_id provides the time horizon for determining which encounters come before and after another.
 
-# In[134]:
+# In[148]:
 
 
 from student_utils import select_first_encounter
@@ -391,13 +417,13 @@ from student_utils import select_first_encounter
 first_encounter_df = select_first_encounter(reduce_dim_df)
 
 
-# In[135]:
+# In[149]:
 
 
 first_encounter_df
 
 
-# In[136]:
+# In[150]:
 
 
 # unique patients in transformed dataset
@@ -421,7 +447,7 @@ print("Tests passed!!")
 # 
 # To make it simpler for students, we are creating dummy columns for each unique generic drug name and adding those are input features to the model. There are other options for data representation but this is out of scope for the time constraints of the course.
 
-# In[137]:
+# In[151]:
 
 
 exclusion_list = ['generic_drug_name']
@@ -429,13 +455,13 @@ grouping_field_list = [c for c in first_encounter_df.columns if c not in exclusi
 agg_drug_df, ndc_col_list = aggregate_dataset(first_encounter_df, grouping_field_list, 'generic_drug_name')
 
 
-# In[138]:
+# In[152]:
 
 
 assert len(agg_drug_df) == agg_drug_df['patient_nbr'].nunique() == agg_drug_df['encounter_id'].nunique()
 
 
-# In[139]:
+# In[153]:
 
 
 agg_drug_df
@@ -451,7 +477,7 @@ agg_drug_df
 
 # Student response: ??
 
-# In[140]:
+# In[154]:
 
 
 # Ans: The weight, payer_code and medical_specialty fields have very high '?' values and so they should be 
@@ -480,7 +506,7 @@ student_numerical_col_list = ['number_diagnoses', 'num_medications', 'num_proced
 PREDICTOR_FIELD = 'time_in_hospital'
 
 
-# In[141]:
+# In[155]:
 
 
 def select_model_features(df, categorical_col_list, numerical_col_list, PREDICTOR_FIELD, grouping_key='patient_nbr'):
@@ -488,14 +514,14 @@ def select_model_features(df, categorical_col_list, numerical_col_list, PREDICTO
     return agg_drug_df[selected_col_list]
 
 
-# In[142]:
+# In[156]:
 
 
 selected_features_df = select_model_features(agg_drug_df, student_categorical_col_list, student_numerical_col_list,
                                             PREDICTOR_FIELD)
 
 
-# In[143]:
+# In[157]:
 
 
 selected_features_df.head()
@@ -507,7 +533,7 @@ selected_features_df.head()
 # 
 # OPTIONAL: What are some potential issues with this approach? Can you recommend a better way and also implement it?
 
-# In[144]:
+# In[158]:
 
 
 processed_df = preprocess_df(selected_features_df, student_categorical_col_list, 
@@ -525,7 +551,7 @@ processed_df = preprocess_df(selected_features_df, student_categorical_col_list,
 # - Make sure that the total number of unique patients across the splits is equal to the total number of unique patients in the original dataset
 # - Total number of rows in original dataset = sum of rows across all three dataset partitions
 
-# In[145]:
+# In[159]:
 
 
 from student_utils import patient_dataset_splitter
@@ -533,13 +559,13 @@ from student_utils import patient_dataset_splitter
 d_train, d_val, d_test = patient_dataset_splitter(processed_df, 'patient_nbr')
 
 
-# In[146]:
+# In[160]:
 
 
 d_train[student_numerical_col_list].describe().transpose()['mean']
 
 
-# In[147]:
+# In[161]:
 
 
 #Normalize the data
@@ -550,21 +576,21 @@ d_val[student_numerical_col_list]   = norm(d_val[student_numerical_col_list], st
 #d_test[student_numerical_col_list]  = norm(d_test[student_numerical_col_list], student_numerical_col_list)
 
 
-# In[148]:
+# In[162]:
 
 
 assert len(d_train) + len(d_val) + len(d_test) == len(processed_df)
 print("Test passed for number of total rows equal!")
 
 
-# In[149]:
+# In[163]:
 
 
 assert (d_train['patient_nbr'].nunique() + d_val['patient_nbr'].nunique() + d_test['patient_nbr'].nunique()) == agg_drug_df['patient_nbr'].nunique()
 print("Test passed for number of unique patients being equal!")
 
 
-# In[150]:
+# In[164]:
 
 
 d_test
@@ -578,19 +604,19 @@ d_test
 
 # Below you can see the distributution of the label across your splits. Are the histogram distribution shapes similar across partitions?
 
-# In[151]:
+# In[165]:
 
 
 show_group_stats_viz(processed_df, PREDICTOR_FIELD)
 
 
-# In[152]:
+# In[166]:
 
 
 show_group_stats_viz(d_train, PREDICTOR_FIELD)
 
 
-# In[153]:
+# In[167]:
 
 
 show_group_stats_viz(d_test, PREDICTOR_FIELD)
@@ -600,7 +626,7 @@ show_group_stats_viz(d_test, PREDICTOR_FIELD)
 
 # We should check that our partitions/splits of the dataset are similar in terms of their demographic profiles. Below you can see how we might visualize and analyze the full dataset vs. the partitions.
 
-# In[154]:
+# In[168]:
 
 
 # Full dataset before splitting
@@ -609,14 +635,14 @@ patient_group_analysis_df = processed_df[patient_demo_features].groupby('patient
 show_group_stats_viz(patient_group_analysis_df, 'gender')
 
 
-# In[155]:
+# In[169]:
 
 
 # Training partition
 show_group_stats_viz(d_train, 'gender')
 
 
-# In[156]:
+# In[170]:
 
 
 # Test partition
@@ -628,7 +654,7 @@ show_group_stats_viz(d_test, 'gender')
 # We have provided you the function to convert the Pandas dataframe to TF tensors using the TF Dataset API. 
 # Please note that this is not a scalable method and for larger datasets, the 'make_csv_dataset' method is recommended -https://www.tensorflow.org/api_docs/python/tf/data/experimental/make_csv_dataset.
 
-# In[157]:
+# In[171]:
 
 
 # Convert dataset from Pandas dataframes to TF dataset 
@@ -638,7 +664,7 @@ diabetes_val_ds = df_to_dataset(d_val, PREDICTOR_FIELD, batch_size=batch_size)
 diabetes_test_ds = df_to_dataset(d_test, PREDICTOR_FIELD, batch_size=batch_size)
 
 
-# In[158]:
+# In[172]:
 
 
 # We use this sample of the dataset to show transformations later
@@ -654,13 +680,13 @@ def demo(feature_column, example_batch):
 
 # Before we can create the TF categorical features, we must first create the vocab files with the unique values for a given field that are from the **training** dataset. Below we have provided a function that you can use that only requires providing the pandas train dataset partition and the list of the categorical columns in a list format. The output variable 'vocab_file_list' will be a list of the file paths that can be used in the next step for creating the categorical features.
 
-# In[159]:
+# In[173]:
 
 
 vocab_file_list = build_vocab_files(d_train, student_categorical_col_list)
 
 
-# In[160]:
+# In[174]:
 
 
 vocab_file_list
@@ -670,7 +696,7 @@ vocab_file_list
 
 # **Question 7**: Using the vocab file list from above that was derived fromt the features you selected earlier, please create categorical features with the Tensorflow Feature Column API, https://www.tensorflow.org/api_docs/python/tf/feature_column. Below is a function to help guide you.
 
-# In[161]:
+# In[175]:
 
 
 from student_utils import create_tf_categorical_feature_cols
@@ -678,7 +704,7 @@ from student_utils import create_tf_categorical_feature_cols
 tf_cat_col_list = create_tf_categorical_feature_cols(student_categorical_col_list)
 
 
-# In[162]:
+# In[176]:
 
 
 test_cat_var1 = tf_cat_col_list[0]
@@ -690,7 +716,7 @@ demo(test_cat_var1, diabetes_batch)
 
 # **Question 8**: Using the TF Feature Column API(https://www.tensorflow.org/api_docs/python/tf/feature_column/), please create normalized Tensorflow numeric features for the model. Try to use the z-score normalizer function below to help as well as the 'calculate_stats_from_train_data' function.
 
-# In[163]:
+# In[177]:
 
 
 from student_utils import create_tf_numeric_feature
@@ -699,7 +725,7 @@ from student_utils import create_tf_numeric_feature
 # For simplicity the create_tf_numerical_feature_cols function below uses the same normalizer function across all features(z-score normalization) but if you have time feel free to analyze and adapt the normalizer based off the statistical distributions. You may find this as a good resource in determining which transformation fits best for the data https://developers.google.com/machine-learning/data-prep/transform/normalization.
 # 
 
-# In[164]:
+# In[178]:
 
 
 def calculate_stats_from_train_data(df, col):
@@ -718,7 +744,7 @@ def create_tf_numerical_feature_cols(numerical_col_list, train_df):
     return tf_numeric_col_list
 
 
-# In[165]:
+# In[179]:
 
 
 #print (student_numerical_col_list)
@@ -728,7 +754,7 @@ def create_tf_numerical_feature_cols(numerical_col_list, train_df):
 tf_cont_col_list = create_tf_numerical_feature_cols(student_numerical_col_list, d_train)
 
 
-# In[166]:
+# In[180]:
 
 
 test_cont_var1 = tf_cont_col_list[0]
@@ -742,7 +768,7 @@ demo(test_cont_var1, diabetes_batch)
 
 # Now that we have prepared categorical and numerical features using Tensorflow's Feature Column API, we can combine them into a dense vector representation for the model. Below we will create this new input layer, which we will call 'claim_feature_layer'.
 
-# In[167]:
+# In[181]:
 
 
 claim_feature_columns = tf_cat_col_list + tf_cont_col_list
@@ -755,7 +781,7 @@ claim_feature_layer = tf.keras.layers.DenseFeatures(claim_feature_columns)
 
 # **OPTIONAL**: Come up with a more optimal neural network architecture and hyperparameters. Share the process in discovering the architecture and hyperparameters.
 
-# In[168]:
+# In[182]:
 
 
 def build_sequential_model(feature_layer):
@@ -782,7 +808,7 @@ def build_diabetes_model(train_ds, val_ds,  feature_layer,  epochs=5, loss_metri
     return model, history 
 
 
-# In[169]:
+# In[183]:
 
 
 diabetes_model, history = build_diabetes_model(diabetes_train_ds, diabetes_val_ds,  claim_feature_layer,  epochs=10)
@@ -792,7 +818,7 @@ diabetes_model, history = build_diabetes_model(diabetes_train_ds, diabetes_val_d
 
 # **Question 9**: Now that we have trained a model with TF Probability layers, we can extract the mean and standard deviation for each prediction. Please fill in the answer for the m and s variables below. The code for getting the predictions is provided for you below.
 
-# In[170]:
+# In[184]:
 
 
 feature_list = student_categorical_col_list + student_numerical_col_list
@@ -800,7 +826,7 @@ diabetes_x_tst = dict(d_test[feature_list])
 #d_test[feature_list].head()
 
 
-# In[171]:
+# In[185]:
 
 
 #print (diabetes_x_tst)
@@ -809,7 +835,7 @@ preds = diabetes_model.predict(diabetes_test_ds)
 print(diabetes_yhat)
 
 
-# In[172]:
+# In[186]:
 
 
 from student_utils import get_mean_std_from_preds
@@ -817,7 +843,7 @@ from student_utils import get_mean_std_from_preds
 m, s = get_mean_std_from_preds(diabetes_yhat)
 
 
-# In[173]:
+# In[187]:
 
 
 print (m)
@@ -825,7 +851,7 @@ print (m)
 
 # ## Show Prediction Output 
 
-# In[174]:
+# In[188]:
 
 
 prob_outputs = {
@@ -837,13 +863,13 @@ prob_outputs = {
 prob_output_df = pd.DataFrame(prob_outputs)
 
 
-# In[175]:
+# In[189]:
 
 
 prob_output_df.describe()
 
 
-# In[176]:
+# In[190]:
 
 
 prob_output_df.head(100)
@@ -853,7 +879,7 @@ prob_output_df.head(100)
 
 # **Question 10**: Given the output predictions, convert it to a binary label for whether the patient meets the time criteria or does not (HINT: use the mean prediction numpy array). The expected output is a numpy array with a 1 or 0 based off if the prediction meets or doesnt meet the criteria.
 
-# In[189]:
+# In[191]:
 
 
 from student_utils import get_student_binary_prediction
@@ -865,7 +891,7 @@ student_binary_prediction = get_student_binary_prediction(prob_output_df, 'pred'
 
 # Using the student_binary_prediction output that is a numpy array with binary labels, we can use this to add to a dataframe to better visualize and also to prepare the data for the Aequitas toolkit. The Aequitas toolkit requires that the predictions be mapped to a binary label for the predictions (called 'score' field) and the actual value (called 'label_value').
 
-# In[190]:
+# In[192]:
 
 
 def add_pred_to_test(test_df, pred_np, demo_col_list):
@@ -878,13 +904,13 @@ def add_pred_to_test(test_df, pred_np, demo_col_list):
 pred_test_df = add_pred_to_test(d_test, student_binary_prediction, ['race', 'gender'])
 
 
-# In[191]:
+# In[193]:
 
 
 pred_test_df[['patient_nbr', 'gender', 'race', 'time_in_hospital', 'score', 'label_value']].head()
 
 
-# In[192]:
+# In[194]:
 
 
 print ("# Match =", len(pred_test_df[(pred_test_df['score'] == pred_test_df['label_value'])]))
@@ -901,7 +927,7 @@ print ("# NaNs in Prediction =", len(pred_test_df[np.isnan(pred_test_df['score']
 # 
 # - What are some areas of improvement for future iterations?
 
-# In[193]:
+# In[196]:
 
 
 # AUC, F1, precision and recall
@@ -913,7 +939,7 @@ print ("# NaNs in Prediction =", len(pred_test_df[np.isnan(pred_test_df['score']
 # drags down the precision. I have chosen a medium value for the threshold in an attempt to optimize
 # precision-recall variance
 
-# The model displays a precision of 0.62, recall of 0.70 and an f1-score of 0.66.
+# The model displays a precision of 0.63, recall of 0.72 and an f1-score of 0.67.
 # In order to get the model working at this level, I used a classification threshold of 40 days
 # on the pred values returned by the model. The threshold changes based on the number of epochs for
 # which the model is trained. I also tried different combinations of numerical and
@@ -941,7 +967,7 @@ roc_auc_score(y_true, y_pred)
 
 # Using the gender and race fields, we will prepare the data for the Aequitas Toolkit.
 
-# In[194]:
+# In[197]:
 
 
 # Aequitas
@@ -965,7 +991,7 @@ b = Bias()
 
 # Below we have chosen the reference group for our analysis but feel free to select another one.
 
-# In[195]:
+# In[198]:
 
 
 # test reference group with Caucasian Male
@@ -985,27 +1011,26 @@ fdf = f.get_group_value_fairness(bdf)
 
 # **Question 12**: For the gender and race fields, please plot two metrics that are important for patient selection below and state whether there is a significant bias in your model across any of the groups along with justification for your statement.
 
-# In[197]:
+# In[199]:
 
 
 # Plot two metrics
 #p = aqp.plot_group_metric_all(xtab, metrics=['tpr', 'fpr', 'ppr', 'pprev', 'fnr'], ncols=5)
 p = aqp.plot_group_metric_all(xtab, metrics=['tpr', 'fpr'], ncols=2)
-p = aqp.plot_group_metric_all(xtab, metrics=['tnr', 'fnr'], ncols=2)
+#p = aqp.plot_group_metric_all(xtab, metrics=['tnr', 'fnr'], ncols=2)
 
 # Is there significant bias in your model for either race or gender?
 # Ans: As per the plots below, there is no major bias around gender or race.
 
-# At the race level, there is seemingly a bias against Asians from the visuals below (TPR is very low of 0.08), 
-# but this is inconclusive since the number of Asians in the test set is very low (66) compared to say, 
-# African Americans (1996).
+# Asians seem to have a slightly higher TPR (and FPR) that other races but this is inconclusive since their
+# population size (78) is very small compared to the rest (Caucasians 8060 and African Americans 1970).
 
 
 # ## Fairness Analysis Example - Relative to a Reference Group 
 
 # **Question 13**: Earlier we defined our reference group and then calculated disparity metrics relative to this grouping. Please provide a visualization of the fairness evaluation for this reference group and analyze whether there is disparity.
 
-# In[198]:
+# In[200]:
 
 
 # Reference group fairness plot
@@ -1014,4 +1039,10 @@ fpr_disparity = aqp.plot_disparity(bdf, group_metric='fpr_disparity',
 
 fpr_disparity = aqp.plot_disparity(bdf, group_metric='fpr_disparity', 
                                    attribute_name='gender')
+
+
+# In[ ]:
+
+
+
 
